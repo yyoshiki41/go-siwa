@@ -15,7 +15,7 @@ func NewJWTHeader(kid string) map[string]interface{} {
 	}
 }
 
-func NewJWTPayload(iss, sub string, iat, exp int64) jwt.StandardClaims {
+func NewJWTPayload(iss, sub string, iat, exp int64) jwt.Claims {
 	return jwt.StandardClaims{
 		Audience:  AudienceApple,
 		Issuer:    iss,
@@ -26,7 +26,7 @@ func NewJWTPayload(iss, sub string, iat, exp int64) jwt.StandardClaims {
 }
 
 func NewJWTString(
-	claims jwt.Claims, header map[string]interface{}, key []byte,
+	header map[string]interface{}, claims jwt.Claims, key []byte,
 ) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
 	token.Header = header

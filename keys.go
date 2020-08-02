@@ -1,5 +1,7 @@
 package siwa
 
+// https://developer.apple.com/documentation/sign_in_with_apple/fetch_apple_s_public_key_for_verifying_token_signature
+
 import (
 	"context"
 	"net/http"
