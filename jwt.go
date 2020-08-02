@@ -26,7 +26,7 @@ func NewJWTPayload(iss, sub string, iat, exp int64) jwt.Claims {
 }
 
 func NewJWTString(
-	header map[string]interface{}, claims jwt.Claims, key []byte,
+	header map[string]interface{}, claims jwt.Claims, key interface{},
 ) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
 	token.Header = header
