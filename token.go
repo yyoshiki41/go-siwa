@@ -42,7 +42,7 @@ func (c *Client) TokenGrantTypeAuthorizationCode(
 		return nil, err
 	}
 	u.Path = path.Join(u.Path, pathAuthToken)
-	v := formValues(GrantTypeRefreshToken, clientID, clientSecret, code, redirectURI, "")
+	v := formValues(GrantTypeAuthorizationCode, clientID, clientSecret, code, redirectURI, "")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
 		u.String(), strings.NewReader(v.Encode()))
@@ -88,7 +88,7 @@ func formValues(grantType GrantType, clientID, clientSecret, code, redirectURI, 
 	v := url.Values{}
 	v.Set("client_id", clientID)
 	v.Set("client_secret", clientSecret)
-	v.Set("grant_type", string(GrantTypeAuthorizationCode))
+	v.Set("grant_type", string(grantType))
 
 	switch grantType {
 	case GrantTypeAuthorizationCode:
