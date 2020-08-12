@@ -2,6 +2,7 @@ package siwa
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -48,8 +49,26 @@ func (c *Client) do(req *http.Request, res interface{}) error {
 	}
 	defer response.Body.Close()
 
+	var r io.Reader = response.Body
+	// r = io.TeeReader(r, os.Stderr)
+
+	code := response.StatusCode
+	if code >= http.StatusBadRequest {
+		var e ErrorResponse
+		json.NewDecoder(r).Decode(&e)
+		return &e
+	}
+
 	if res == nil {
 		return nil
 	}
-	return json.NewDecoder(response.Body).Decode(&res)
+	return json.NewDecoder(r).Decode(&res)
+}
+
+type ErrorResponse struct {
+	Err string `json:"error"`
+}
+
+func (e *ErrorResponse) Error() string {
+	return e.Err
 }
