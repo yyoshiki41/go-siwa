@@ -4,6 +4,10 @@
 
 Go library for SIWA (Sign In With Apple)
 
+## [Sign in with Apple REST API](https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api)
+
+This client supports Sign in with Apple REST API to generate and validate the identity tokens.
+
 ## Quick Start
 
 1. Generate sigend JWT from your private key
