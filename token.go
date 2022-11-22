@@ -11,7 +11,8 @@ import (
 // https://developer.apple.com/documentation/sign_in_with_apple/generate_and_validate_tokens
 
 const (
-	pathAuthToken = "/auth/token"
+	pathAuthToken  = "/auth/token"
+	pathAuthRevoke = "/auth/revoke"
 )
 
 type GrantType string
@@ -98,4 +99,33 @@ func formValues(grantType GrantType, clientID, clientSecret, code, redirectURI, 
 		v.Set("refresh_token", refreshToken)
 	}
 	return v
+}
+
+func (c *Client) RevokeToken(
+	ctx context.Context, clientID, clientSecret, refreshToken string,
+) (*Token, error) {
+	u, err := url.Parse(c.config.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = path.Join(u.Path, pathAuthRevoke)
+	v := url.Values{}
+	v.Set("client_id", clientID)
+	v.Set("client_secret", clientSecret)
+	v.Set("token", refreshToken)
+	v.Set("token_type_hint", "refresh_token")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		u.String(), strings.NewReader(v.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	var result Token
+	err = c.do(req, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
