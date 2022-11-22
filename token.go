@@ -11,7 +11,8 @@ import (
 // https://developer.apple.com/documentation/sign_in_with_apple/generate_and_validate_tokens
 
 const (
-	pathAuthToken = "/auth/token"
+	pathAuthToken  = "/auth/token"
+	pathAuthRevoke = "/auth/revoke"
 )
 
 type GrantType string
@@ -19,6 +20,13 @@ type GrantType string
 const (
 	GrantTypeAuthorizationCode GrantType = "authorization_code"
 	GrantTypeRefreshToken      GrantType = "refresh_token"
+)
+
+type TokenTypeHint string
+
+const (
+	TokenTypeHintAccessToken  TokenTypeHint = "access_token"
+	TokenTypeHintRefreshToken TokenTypeHint = "refresh_token"
 )
 
 type Token struct {
@@ -98,4 +106,31 @@ func formValues(grantType GrantType, clientID, clientSecret, code, redirectURI, 
 		v.Set("refresh_token", refreshToken)
 	}
 	return v
+}
+
+func (c *Client) RevokeToken(
+	ctx context.Context, clientID, clientSecret, token string, tokenTypeHint TokenTypeHint,
+) error {
+	u, err := url.Parse(c.config.Endpoint)
+	if err != nil {
+		return err
+	}
+	u.Path = path.Join(u.Path, pathAuthRevoke)
+	v := url.Values{}
+	v.Set("client_id", clientID)
+	v.Set("client_secret", clientSecret)
+	v.Set("token", token)
+	v.Set("token_type_hint", string(tokenTypeHint))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		u.String(), strings.NewReader(v.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if err := c.do(req, nil); err != nil {
+		return err
+	}
+	return nil
 }
